@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camino de 21 Días</title>
+<style>
+  :root{
+    --ink:#14171F;
+    --ink-soft:#1E2230;
+    --panel:#242938;
+    --panel-line:#343B4E;
+    --gold:#C9A227;
+    --gold-soft:#E4C766;
+    --teal:#3C7A73;
+    --teal-soft:#8FC1B9;
+    --text:#EDEAE3;
+    --text-dim:#9BA0B0;
+    --danger:#B0524A;
+    --font-head: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    margin-bottom: 22px;
+  }
+  .eyebrow{
+    font-size: 13px;
+    color: var(--teal-soft);
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  h1{
+    font-family: var(--font-head);
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--text);
+  }
+  .subtitle{
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 46ch;
+  }
+
+  .name-row{
+    margin-top:16px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .name-row input{
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--font-body);
+    width: 220px;
+  }
+  .name-row input:focus{ outline: 2px solid var(--gold); outline-offset: 1px; }
+  .name-row button{
+    background: var(--gold);
+    color: var(--ink);
+    border:none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor:pointer;
+  }
+  .name-row button:hover{ background: var(--gold-soft); }
+  .name-hint{ font-size:13px; color:var(--text-dim); }
+
+  /* ---------- Progress path ---------- */
+  .progress-block{
+    margin: 26px 0 10px;
+  }
+  .progress-label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .progress-label strong{ color: var(--gold-soft); font-size: 14px; }
+
+  .path{
+    display:flex;
+    align-items:center;
+    overflow-x:auto;
+    padding: 6px 2px 14px;
+    scrollbar-width: thin;
+  }
+  .stone{
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--panel-line);
+    background: var(--ink-soft);
+    color: var(--text-dim);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 11px;
+    font-weight:600;
+    cursor:pointer;
+    position:relative;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .stone:hover{ transform: translateY(-2px); }
+  .stone.done{
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--ink);
+  }
+  .stone.current{
+    border-color: var(--gold-soft);
+    box-shadow: 0 0 0 3px rgba(201,162,39,0.25);
+    color: var(--text);
+  }
+  .link{
+    flex: 0 0 auto;
+    width: 14px;
+    height: 2px;
+    background: var(--panel-line);
+  }
+  .link.done{ background: var(--gold); }
+
+  /* ---------- Day card ---------- */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 14px;
+    padding: 26px 26px 22px;
+    margin-top: 18px;
+  }
+  .day-tag{
+    font-size: 12.5px;
+    color: var(--teal-soft);
+    margin-bottom: 6px;
+  }
+  .day-title{
+    font-family: var(--font-head);
+    font-size: 24px;
+    margin: 0 0 18px;
+    color: var(--text);
+  }
+
+  .verse-box{
+    background: var(--ink-soft);
+    border-left: none;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .verse-text{
+    font-family: var(--font-head);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--gold-soft);
+    margin: 0 0 8px;
+  }
+  .verse-ref{
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .section-label{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--teal-soft);
+    margin: 20px 0 8px;
+  }
+  .body-text{
+    font-size: 14.5px;
+    color: var(--text);
+    margin: 0 0 4px;
+  }
+
+  .checklist{
+    list-style:none;
+    margin: 8px 0 0;
+    padding: 0;
+    display:flex;
+    flex-direction:column;
+    gap: 8px;
+  }
+  .checklist li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    background: var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor:pointer;
+    border: 1px solid transparent;
+  }
+  .checklist li:hover{ border-color: var(--panel-line); }
+  .checklist input{
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--gold);
+    flex-shrink:0;
+  }
+  .checklist label{
+    font-size: 14px;
+    cursor:pointer;
+  }
+  .checklist li.checked label{
+    color: var(--text-dim);
+    text-decoration: line-through;
+  }
+
+  textarea{
+    width:100%;
+    background: var(--ink-soft);
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    resize: vertical;
+    min-height: 80px;
+    margin-top: 6px;
+  }
+  textarea:focus{ outline: 2px solid var(--gold); outline-offset: 1px; }
+
+  .card-footer{
+    margin-top: 22px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap:wrap;
+  }
+  .complete-btn{
+    background: var(--teal);
+    color: var(--text);
+    border:none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-weight:600;
+    font-size: 14px;
+    cursor:pointer;
+  }
+  .complete-btn:hover{ background: var(--teal-soft); color: var(--ink); }
+  .complete-btn.is-done{ background: var(--gold); color: var(--ink); }
+
+  .nav-btns{ display:flex; gap:8px; }
+  .nav-btns button{
+    background: transparent;
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor:pointer;
+    font-size: 14px;
+  }
+  .nav-btns button:hover{ border-color: var(--gold); color: var(--gold-soft); }
+  .nav-btns button:disabled{ opacity: .35; cursor:not-allowed; }
+
+  /* ---------- SOS ---------- */
+  .sos-btn{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: var(--danger);
+    color: #fff;
+    border:none;
+    padding: 13px 18px;
+    border-radius: 999px;
+    font-weight:700;
+    font-size: 14px;
+    cursor:pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    z-index: 20;
+  }
+  .sos-btn:hover{ filter:brightness(1.08); }
+
+  .overlay{
+    position:fixed; inset:0;
+    background: rgba(10,11,16,0.7);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 30;
+    padding: 20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 14px;
+    max-width: 480px;
+    width:100%;
+    max-height: 84vh;
+    overflow-y:auto;
+    padding: 24px;
+  }
+  .modal h2{
+    font-family: var(--font-head);
+    font-size: 21px;
+    margin: 0 0 4px;
+    color: var(--gold-soft);
+  }
+  .modal .sub{ color: var(--text-dim); font-size: 13.5px; margin-bottom: 16px; }
+  .modal ol{ padding-left: 20px; margin: 0 0 16px; }
+  .modal ol li{ margin-bottom: 8px; font-size: 14px; }
+  .modal .verse-box{ margin-bottom: 6px; }
+  .modal-close{
+    margin-top: 6px;
+    background: var(--gold);
+    color: var(--ink);
+    border:none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight:600;
+    cursor:pointer;
+    width:100%;
+  }
+
+  .status-note{
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    min-height: 16px;
+  }
+
+  @media (max-width: 480px){
+    h1{ font-size: 27px; }
+    .card{ padding: 20px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">UN PLAN DE 21 DÍAS</div>
+    <h1>Camino de Restauración</h1>
+    <p class="subtitle">Un espacio diario para dejar atrás el alcohol, la pornografía, la ira y las palabras que hieren — y construir, con la ayuda de Dios, al hombre que quieres ser.</p>
+    <div class="name-row">
+      <input id="nameInput" type="text" placeholder="¿Cómo te llamas?" maxlength="30">
+      <button id="saveName">Guardar</button>
+      <span class="name-hint" id="nameHint"></span>
+    </div>
+  </header>
+
+  <div class="progress-block">
+    <div class="progress-label">
+      <span>Tu recorrido</span>
+      <strong id="progressText">0 de 21 días completados</strong>
+    </div>
+    <div class="path" id="path"></div>
+  </div>
+
+  <div class="card">
+    <div class="day-tag" id="dayTag">DÍA 1</div>
+    <h2 class="day-title" id="dayTitle">—</h2>
+
+    <div class="verse-box">
+      <p class="verse-text" id="verseText">—</p>
+      <div class="verse-ref" id="verseRef">—</div>
+    </div>
+
+    <div class="section-label">Para pensar hoy</div>
+    <p class="body-text" id="reflection">—</p>
+
+    <div class="section-label">Tu reto de hoy</div>
+    <p class="body-text" id="challenge">—</p>
+
+    <div class="section-label">Hábitos de hoy</div>
+    <ul class="checklist" id="checklist"></ul>
+
+    <div class="section-label">Tu diario</div>
+    <textarea id="journal" placeholder="Escribe cómo te fue hoy, qué se te hizo difícil, o una oración..."></textarea>
+
+    <div class="card-footer">
+      <div class="nav-btns">
+        <button id="prevBtn">← Día anterior</button>
+        <button id="nextBtn">Día siguiente →</button>
+      </div>
+      <button class="complete-btn" id="completeBtn">Marcar día como completado</button>
+    </div>
+    <div class="status-note" id="statusNote"></div>
+  </div>
+
+</div>
+
+<button class="sos-btn" id="sosBtn">Tengo una tentación ahora</button>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Detente un momento</h2>
+    <div class="sub">Esto también pasará. No estás obligado a actuar según lo que sientes ahora mismo.</div>
+    <ol>
+      <li>Respira lento: inhala 4 segundos, sostén 4, exhala 6. Repítelo cinco veces.</li>
+      <li>Sal del lugar o la situación donde está la tentación — muévete físicamente, aunque sea a otro cuarto.</li>
+      <li>Dile a Dios en voz alta lo que sientes, sin filtro. Él ya lo sabe y no te condena.</li>
+      <li>Llama o escribe a alguien de confianza (un amigo, un pastor, alguien de tu iglesia). No enfrentes esto solo.</li>
+      <li>Recuerda que ceder hoy no borra tu progreso: mañana sigues en el camino. Vuelve a este plan.</li>
+    </ol>
+    <div class="verse-box">
+      <p class="verse-text">No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir, sino que dará también juntamente con la tentación la salida, para que podáis soportar.</p>
+      <div class="verse-ref">1 Corintios 10:13 (RVR1960)</div>
+    </div>
+    <p class="body-text" style="margin-top:10px; color:var(--text-dim); font-size:13px;">Si en algún momento sientes que podrías hacerte daño a ti mismo o hacerle daño a otra persona, busca ayuda de inmediato: habla con un profesional, con tu pastor, o acude a un servicio de emergencia. Este plan es un apoyo diario, no un sustituto de ayuda profesional cuando se necesita.</p>
+    <button class="modal-close" id="closeModal">Ya estoy más tranquilo, continuar</button>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    title: "Reconocer dónde estoy",
+    verse: "Crea en mí, oh Dios, un corazón limpio, Y renueva un espíritu recto dentro de mí.",
+    ref: "Salmo 51:10 (RVR1960)",
+    reflection: "Cambiar empieza por ser honesto con uno mismo. Hoy no se trata de sentirte culpable, sino de nombrar con claridad qué hábitos quieres dejar atrás: el alcohol, la pornografía, las groserías, la ira.",
+    challenge: "Escribe en tu diario, sin adornar nada, las áreas donde más necesitas cambiar y por qué quieres hacerlo."
+  },
+  {
+    title: "Un nuevo comienzo es posible",
+    verse: "De modo que si alguno está en Cristo, nueva criatura es; las cosas viejas pasaron; he aquí todas son hechas nuevas.",
+    ref: "2 Corintios 5:17 (RVR1960)",
+    reflection: "Tu pasado no determina quién puedes llegar a ser. No estás reparando una versión vieja de ti mismo: estás construyendo una nueva.",
+    challenge: "Identifica una persona o lugar que suele activar tus viejos hábitos, y decide hoy cómo vas a evitarlo esta semana."
+  },
+  {
+    title: "El alcohol no gobierna mi vida",
+    verse: "El vino es escarnecedor, la sidra alborotadora; Y cualquiera que en ello se desvía no es sabio.",
+    ref: "Proverbios 20:1 (RVR1960)",
+    reflection: "El alcohol promete alivio pero cobra caro: relaciones dañadas, decisiones que lastiman a otros, control que se pierde. Hoy eliges no dejar que gobierne tus emociones.",
+    challenge: "Identifica qué sientes justo antes de querer beber (¿estrés, soledad, enojo?) y anota una alternativa concreta para esa emoción."
+  },
+  {
+    title: "Ser lleno de algo mejor",
+    verse: "No os embriaguéis con vino, en lo cual hay disolución; antes bien sed llenos del Espíritu.",
+    ref: "Efesios 5:18 (RVR1960)",
+    reflection: "Dejar un hábito vacío no basta; necesitas llenar ese espacio con algo que sí construya. Oración, ejercicio, comunidad, propósito.",
+    challenge: "Elige una actividad sana para reemplazar el momento del día en que normalmente bebías o caías en tentación."
+  },
+  {
+    title: "Cercano a los quebrantados",
+    verse: "Cercano está Jehová a los quebrantados de corazón; Y salva a los contritos de espíritu.",
+    ref: "Salmo 34:18 (RVR1960)",
+    reflection: "El dolor de una ruptura es real y no hay que minimizarlo. Pensar en Diana y sentir tristeza no es debilidad; es parte de sanar. Dios está cerca precisamente en ese dolor.",
+    challenge: "Permítete sentir la tristeza sin buscar anestesiarla con alcohol, pornografía o mensajes impulsivos. Escribe en tu diario qué extrañas y qué necesitas soltar."
+  },
+  {
+    title: "Soltar sin veneno",
+    verse: "Antes sed benignos unos con otros, misericordiosos, perdonándoos unos a otros, como Dios también os perdonó a vosotros en Cristo.",
+    ref: "Efesios 4:32 (RVR1960)",
+    reflection: "Perdonar y soltar una relación no significa que todo estuvo bien; significa que decides no cargar rencor ni buscar el control sobre esa persona.",
+    challenge: "Si tienes el impulso de escribirle a Diana algo impulsivo o de exigirle algo, hoy no lo hagas. Escribe esa carta en tu diario en lugar de enviarla."
+  },
+  {
+    title: "Pensamientos tienen dueño",
+    verse: "Llevando cautivo todo pensamiento a la obediencia a Cristo.",
+    ref: "2 Corintios 10:5 (RVR1960)",
+    reflection: "No siempre puedes evitar que un pensamiento sexual aparezca, pero sí puedes decidir no alimentarlo ni seguirlo.",
+    challenge: "La próxima vez que un pensamiento así aparezca, practica nombrarlo en silencio (\"esto es una tentación\") y cambia de actividad de inmediato."
+  },
+  {
+    title: "Un pacto con mis ojos",
+    verse: "Hice pacto con mis ojos; ¿Cómo, pues, había yo de pensar en virgen?",
+    ref: "Job 31:1 (RVR1960)",
+    reflection: "Job decidió de antemano, no en el momento de la tentación, qué haría con su mirada. Las decisiones tomadas con calma protegen las decisiones tomadas bajo presión.",
+    challenge: "Configura un filtro de contenido en tus dispositivos hoy mismo, o pide a alguien de confianza que te ayude con rendición de cuentas."
+  },
+  {
+    title: "Huir es sabiduría, no debilidad",
+    verse: "Huid de la fornicación. Cualquier otro pecado que el hombre cometa, está fuera del cuerpo; mas el que fornica, contra su propio cuerpo peca. ¿O ignoráis que vuestro cuerpo es templo del Espíritu Santo, el cual está en vosotros?",
+    ref: "1 Corintios 6:18-19 (RVR1960)",
+    reflection: "Huir de la tentación sexual no es cobardía: es la estrategia más sabia que existe. No siempre hay que 'resistir' quedándote cerca del estímulo.",
+    challenge: "Identifica tu momento y lugar de mayor riesgo para caer en pornografía o masturbación, y cambia tu rutina física en ese momento del día."
+  },
+  {
+    title: "El fruto que quiero cultivar",
+    verse: "Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza; contra tales cosas no hay ley.",
+    ref: "Gálatas 5:22-23 (RVR1960)",
+    reflection: "El dominio propio (templanza) no es represión: es un fruto que crece con el tiempo, con Dios y con práctica constante.",
+    challenge: "Elige una palabra del fruto del Espíritu (paciencia, dominio propio, bondad) para practicar de forma intencional hoy."
+  },
+  {
+    title: "Sin muro, la ciudad cae",
+    verse: "Como ciudad derribada y sin muro, Es el hombre cuyo espíritu no tiene rienda.",
+    ref: "Proverbios 25:28 (RVR1960)",
+    reflection: "Poner límites a tus propios impulsos no te hace menos hombre; te hace un hombre con dominio propio, que es justo lo que estás construyendo.",
+    challenge: "Define un límite concreto esta semana (una hora para dejar el celular, evitar cierto lugar, evitar beber en cierta reunión) y compártelo con alguien que te pida cuentas."
+  },
+  {
+    title: "Palabras que edifican",
+    verse: "Ninguna palabra corrompida salga de vuestra boca, sino la que sea buena para la necesaria edificación, a fin de dar gracia a los oyentes.",
+    ref: "Efesios 4:29 (RVR1960)",
+    reflection: "Las groserías y las palabras hirientes suelen salir del enojo o la costumbre. Cambiar el vocabulario empieza por notar cuándo y por qué aparecen.",
+    challenge: "Cada vez que sientas el impulso de maldecir hoy, haz una pausa de tres segundos y elige otra palabra. Cuenta cuántas veces lo logras."
+  },
+  {
+    title: "Fuera la amargura",
+    verse: "Quítese de vosotros toda amargura, enojo, ira, gritería y maledicencia, y toda malicia.",
+    ref: "Efesios 4:31 (RVR1960)",
+    reflection: "La ira acumulada no desaparece sola; si no se procesa, termina saliendo en gritos, insultos o violencia. Hoy es un buen día para empezar a soltarla, con ayuda si hace falta.",
+    challenge: "Escribe en tu diario una situación reciente donde perdiste el control con enojo. ¿Qué hubieras necesitado hacer distinto antes de explotar?"
+  },
+  {
+    title: "Tardo para airarme",
+    verse: "Por esto, mis amados hermanos, todo hombre sea pronto para oír, tardo para hablar, tardo para airarse; porque la ira del hombre no obra la justicia de Dios.",
+    ref: "Santiago 1:19-20 (RVR1960)",
+    reflection: "La ira, en sí misma, no es pecado — lo que haces con ella sí puede serlo. Un hombre fuerte no es el que nunca se enoja, sino el que no deja que su enojo controle sus manos ni su boca.",
+    challenge: "Practica hoy la regla de los 10 segundos: antes de responder con enojo a algo, cuenta hasta diez y respira."
+  },
+  {
+    title: "Nunca con las manos",
+    verse: "El que fácilmente se enoja hará locuras, Y el hombre perverso será aborrecido.",
+    ref: "Proverbios 14:17 (RVR1960)",
+    reflection: "Si en el pasado has llegado a golpear o intimidar físicamente a una mujer, esto no se resuelve solo con voluntad propia: requiere ayuda profesional además de este trabajo interior. Reconocerlo hoy es un acto de valentía, no de debilidad.",
+    challenge: "Si esto aplica a tu historia, da un paso concreto esta semana: busca a un consejero, terapeuta o programa especializado en manejo de la ira, además de continuar este plan."
+  },
+  {
+    title: "Honrar, no dominar",
+    verse: "Vosotros, maridos, igualmente, vivid con ellas sabiamente, dando honor a la mujer, como a vaso más frágil, y como a coherederas de la gracia de la vida.",
+    ref: "1 Pedro 3:7 (RVR1960)",
+    reflection: "Ser un caballero no es una pose ni buenos modales solamente: es tratar a cada mujer con el mismo cuidado y respeto que le darías a alguien profundamente valioso, porque lo es.",
+    challenge: "Piensa en una mujer de tu vida (madre, hermana, amiga, Diana) y hazle o escríbele un gesto concreto de respeto o gratitud hoy."
+  },
+  {
+    title: "El amor descrito",
+    verse: "El amor es sufrido, es benigno; el amor no tiene envidia, el amor no es jactancioso, no se envanece; no hace nada indebido, no busca lo suyo, no se irrita, no guarda rencor.",
+    ref: "1 Corintios 13:4-5 (RVR1960)",
+    reflection: "Esta descripción del amor es también una descripción del carácter que estás formando. Léela como una meta de carácter, no solo como un versículo para bodas.",
+    challenge: "Elige una frase de este versículo (\"no se irrita\", \"no guarda rencor\") y ponla a prueba conscientemente en una interacción de hoy."
+  },
+  {
+    title: "Revestirse de un nuevo carácter",
+    verse: "Vestíos, pues, como escogidos de Dios, santos y amados, de entrañable misericordia, benignidad, humildad, mansedumbre, paciencia.",
+    ref: "Colosenses 3:12 (RVR1960)",
+    reflection: "El carácter se elige y se practica como quien se viste cada mañana. Un caballero no nace terminado: se va formando decisión tras decisión.",
+    challenge: "Elige una sola virtud de este versículo para practicar de forma deliberada en cada conversación de hoy."
+  },
+  {
+    title: "Dios no ha terminado conmigo",
+    verse: "Estando persuadido de esto, que el que comenzó en vosotros la buena obra, la perfeccionará hasta el día de Jesucristo.",
+    ref: "Filipenses 1:6 (RVR1960)",
+    reflection: "Si hoy fallaste en algo, no significa que el proceso se cancela. Dios sigue trabajando en ti incluso en tus recaídas, si sigues volviendo a intentarlo.",
+    challenge: "Revisa tu diario de estos días y escribe una frase de ánimo para ti mismo, como si se la escribieras a un buen amigo que está en tu misma lucha."
+  },
+  {
+    title: "Firme aunque sea difícil",
+    verse: "Todo lo puedo en Cristo que me fortalece.",
+    ref: "Filipenses 4:13 (RVR1960)",
+    reflection: "Esta frase no promete que todo será fácil; promete que no estás solo en lo difícil. La fuerza para seguir no depende únicamente de tu voluntad.",
+    challenge: "Piensa en el hábito que más se te ha dificultado estos 21 días y define un plan concreto para las próximas semanas."
+  },
+  {
+    title: "El hombre que estoy formando",
+    verse: "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.",
+    ref: "Juan 3:16 (RVR1960)",
+    reflection: "Todo este camino se sostiene en que ya eres profundamente amado, no en que tengas que ganarte ese amor siendo perfecto. Hoy cierras 21 días, pero el carácter de un caballero se sigue formando toda la vida.",
+    challenge: "Escribe un compromiso a largo plazo contigo mismo: qué hábitos de este plan vas a seguir practicando después de hoy, y quién te va a ayudar a sostenerlos."
+  }
+];
+
+const HABITS = [
+  "Sin alcohol hoy",
+  "Sin pornografía ni masturbación",
+  "Cuidé mis palabras, sin groserías",
+  "Respondí con calma, sin gritos ni violencia",
+  "Tuve un momento de oración o lectura bíblica",
+  "Escribí en mi diario"
+];
+
+const TOTAL_DAYS = DAYS.length; // 21
+
+let state = {
+  name: "",
+  currentDay: 1,
+  progress: {} // { "1": { habits:[bool..], journal:"", completed:true } }
+};
+
+function defaultDayState(){
+  return { habits: HABITS.map(()=>false), journal: "", completed: false };
+}
+
+function getDayState(day){
+  const key = String(day);
+  if(!state.progress[key]) state.progress[key] = defaultDayState();
+  return state.progress[key];
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get('camino21-state', false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){
+    console.log('No previous state found, starting fresh.');
+  }
+  document.getElementById('nameInput').value = state.name || "";
+  render();
+}
+
+async function saveState(note){
+  try{
+    await window.storage.set('camino21-state', JSON.stringify(state), false);
+    const n = document.getElementById('statusNote');
+    if(note){ n.textContent = note; setTimeout(()=>{ if(n.textContent===note) n.textContent=""; }, 2000); }
+  }catch(e){
+    console.error('Storage error', e);
+    document.getElementById('statusNote').textContent = "No se pudo guardar. Intenta de nuevo.";
+  }
+}
+
+function renderPath(){
+  const path = document.getElementById('path');
+  path.innerHTML = "";
+  for(let i=1;i<=TOTAL_DAYS;i++){
+    const st = getDayState(i);
+    const stone = document.createElement('div');
+    stone.className = 'stone' + (st.completed ? ' done' : '') + (i===state.currentDay ? ' current' : '');
+    stone.textContent = i;
+    stone.title = "Día " + i;
+    stone.addEventListener('click', ()=>{ state.currentDay = i; saveState(); render(); });
+    path.appendChild(stone);
+    if(i < TOTAL_DAYS){
+      const link = document.createElement('div');
+      link.className = 'link' + (st.completed ? ' done' : '');
+      path.appendChild(link);
+    }
+  }
+  const doneCount = Object.values(state.progress).filter(d=>d.completed).length;
+  document.getElementById('progressText').textContent = doneCount + " de " + TOTAL_DAYS + " días completados";
+}
+
+function renderDay(){
+  const day = state.currentDay;
+  const data = DAYS[day-1];
+  const st = getDayState(day);
+
+  document.getElementById('dayTag').textContent = "DÍA " + day + (state.name ? " · " + state.name : "");
+  document.getElementById('dayTitle').textContent = data.title;
+  document.getElementById('verseText').textContent = "\u201C" + data.verse + "\u201D";
+  document.getElementById('verseRef').textContent = data.ref;
+  document.getElementById('reflection').textContent = data.reflection;
+  document.getElementById('challenge').textContent = data.challenge;
+  document.getElementById('journal').value = st.journal || "";
+
+  const list = document.getElementById('checklist');
+  list.innerHTML = "";
+  HABITS.forEach((h, idx)=>{
+    const li = document.createElement('li');
+    li.className = st.habits[idx] ? 'checked' : '';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = st.habits[idx];
+    cb.id = 'h'+idx;
+    cb.addEventListener('change', ()=>{
+      st.habits[idx] = cb.checked;
+      li.className = cb.checked ? 'checked' : '';
+      saveState();
+    });
+    const label = document.createElement('label');
+    label.htmlFor = 'h'+idx;
+    label.textContent = h;
+    li.appendChild(cb);
+    li.appendChild(label);
+    li.addEventListener('click', (e)=>{ if(e.target!==cb){ cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); } });
+    list.appendChild(li);
+  });
+
+  const completeBtn = document.getElementById('completeBtn');
+  completeBtn.textContent = st.completed ? "✓ Día completado" : "Marcar día como completado";
+  completeBtn.classList.toggle('is-done', st.completed);
+
+  document.getElementById('prevBtn').disabled = day <= 1;
+  document.getElementById('nextBtn').disabled = day >= TOTAL_DAYS;
+}
+
+function render(){
+  renderPath();
+  renderDay();
+}
+
+document.getElementById('journal').addEventListener('input', (e)=>{
+  const st = getDayState(state.currentDay);
+  st.journal = e.target.value;
+});
+document.getElementById('journal').addEventListener('blur', ()=> saveState("Diario guardado."));
+
+document.getElementById('completeBtn').addEventListener('click', ()=>{
+  const st = getDayState(state.currentDay);
+  st.completed = !st.completed;
+  saveState(st.completed ? "¡Día marcado como completado!" : "Día desmarcado.");
+  render();
+});
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(state.currentDay>1){ state.currentDay--; saveState(); render(); }
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(state.currentDay<TOTAL_DAYS){ state.currentDay++; saveState(); render(); }
+});
+
+document.getElementById('saveName').addEventListener('click', ()=>{
+  state.name = document.getElementById('nameInput').value.trim();
+  saveState();
+  document.getElementById('nameHint').textContent = state.name ? ("¡Bienvenido, " + state.name + "!") : "";
+  renderDay();
+  setTimeout(()=>{ document.getElementById('nameHint').textContent=""; }, 2500);
+});
+
+document.getElementById('sosBtn').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.add('open');
+});
+document.getElementById('closeModal').addEventListener('click', ()=>{
+  document.getElementById('overlay').classList.remove('open');
+});
+document.getElementById('overlay').addEventListener('click', (e)=>{
+  if(e.target.id==='overlay') document.getElementById('overlay').classList.remove('open');
+});
+
+loadState();
+</script>
+</body>
+</html>
