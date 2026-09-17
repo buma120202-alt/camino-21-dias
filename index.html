@@ -611,28 +611,51 @@ function getDayState(day){
   return state.progress[key];
 }
 
-async function loadState(){
+const STORAGE_KEY = 'camino21-state';
+let storageAvailable = true;
+
+function checkStorage(){
   try{
-    const res = await window.storage.get('camino21-state', false);
-    if(res && res.value){
-      const parsed = JSON.parse(res.value);
+    const testKey = '__camino21_test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function loadState(){
+  storageAvailable = checkStorage();
+  if(!storageAvailable){
+    document.getElementById('statusNote').textContent =
+      "Tu navegador está bloqueando el guardado (modo privado/incógnito o almacenamiento deshabilitado). Tu progreso no se guardará al cerrar esta página.";
+  }
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
       state = Object.assign(state, parsed);
     }
   }catch(e){
-    console.log('No previous state found, starting fresh.');
+    console.log('No previous state found, starting fresh.', e);
   }
   document.getElementById('nameInput').value = state.name || "";
   render();
 }
 
-async function saveState(note){
+function saveState(note){
+  if(!storageAvailable){
+    if(note) document.getElementById('statusNote').textContent = "No se pudo guardar (almacenamiento no disponible en este navegador).";
+    return;
+  }
   try{
-    await window.storage.set('camino21-state', JSON.stringify(state), false);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     const n = document.getElementById('statusNote');
     if(note){ n.textContent = note; setTimeout(()=>{ if(n.textContent===note) n.textContent=""; }, 2000); }
   }catch(e){
     console.error('Storage error', e);
-    document.getElementById('statusNote').textContent = "No se pudo guardar. Intenta de nuevo.";
+    document.getElementById('statusNote').textContent = "No se pudo guardar. Es posible que el almacenamiento esté lleno o deshabilitado.";
   }
 }
 
